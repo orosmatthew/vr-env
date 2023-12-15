@@ -1,0 +1,12 @@
+{
+  "name": "vr-env",
+  "version": "0.0.1",
+  "dependencies": [
+    {
+      "name": "opencv",
+      "features": [
+        "contrib"
+      ]
+    }
+  ]
+}

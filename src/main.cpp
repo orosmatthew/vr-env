@@ -1,4 +1,5 @@
 #include <raylib-cpp.hpp>
+#include <array>
 
 namespace rl = raylib;
 
