@@ -48,10 +48,11 @@ int main()
 {
     const cv::TermCriteria criteria(cv::TermCriteria::EPS + cv::TermCriteria::MAX_ITER, 30, 0.001);
 
+    constexpr float square_size = 0.026f;
     std::vector<cv::Point3f> object_points_ref;
     for (int i = 0; i < checkers_size_height; i++)
         for (int j = 0; j < checkers_size_width; j++)
-            object_points_ref.emplace_back(j, i, 0);
+            object_points_ref.emplace_back(static_cast<float>(j) * square_size, static_cast<float>(i) * square_size, 0);
 
     std::vector<std::vector<cv::Point3f>> obj_points;
     std::vector<std::vector<cv::Point2f>> img_points;

@@ -5,8 +5,10 @@
     {
       "name": "opencv",
       "features": [
-        "contrib"
+        "contrib",
+        "eigen"
       ]
-    }
+    },
+    "eigen3"
   ]
 }
