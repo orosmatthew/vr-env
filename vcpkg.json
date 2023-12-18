@@ -9,6 +9,8 @@
         "eigen"
       ]
     },
-    "eigen3"
+    "eigen3",
+    "nlohmann-json",
+    "raygui"
   ]
 }

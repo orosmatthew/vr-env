@@ -5,17 +5,27 @@ set(CMAKE_CXX_STANDARD 20)
 
 find_package(OpenCV CONFIG REQUIRED)
 find_package(Eigen3 CONFIG REQUIRED)
+find_package(nlohmann_json CONFIG REQUIRED)
+find_path(RAYGUI_INCLUDE_DIRS "raygui.h")
 
 add_subdirectory(external/raylib-5.0)
 add_subdirectory(external/raylib-cpp-5.0.0)
-add_subdirectory(external/json-3.11.3)
-add_subdirectory(external/raygui-4.0)
 
 add_executable(vr_env src/main.cpp)
 target_link_libraries(vr_env raylib raylib_cpp)
 
 add_executable(camera_calibration src/camera_calibration/main.cpp)
-target_link_libraries(camera_calibration PRIVATE ${OpenCV_LIBS} raylib raylib_cpp json raygui)
+target_include_directories(camera_calibration PRIVATE ${RAYGUI_INCLUDE_DIRS})
+target_link_libraries(camera_calibration PRIVATE
+        ${OpenCV_LIBS}
+        raylib
+        raylib_cpp
+        nlohmann_json::nlohmann_json)
 
 add_executable(aruco src/aruco/main.cpp)
-target_link_libraries(aruco PRIVATE ${OpenCV_LIBS} raylib raylib_cpp json raygui Eigen3::Eigen)
+target_include_directories(aruco PRIVATE ${RAYGUI_INCLUDE_DIRS})
+target_link_libraries(aruco PRIVATE ${OpenCV_LIBS}
+        raylib
+        raylib_cpp
+        nlohmann_json::nlohmann_json
+        Eigen3::Eigen)
