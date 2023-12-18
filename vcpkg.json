@@ -11,6 +11,7 @@
     },
     "eigen3",
     "nlohmann-json",
-    "raygui"
+    "raygui",
+    "asio"
   ]
 }

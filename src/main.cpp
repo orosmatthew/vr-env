@@ -1,12 +1,12 @@
-#include <raylib-cpp.hpp>
 #include <array>
+#include <raylib-cpp.hpp>
 
 namespace rl = raylib;
 
 int main()
 {
-    constexpr int screenWidth = 1440 * 2;
-    constexpr int screenHeight = 1440;
+    constexpr int screenWidth = 1080 * 2;
+    constexpr int screenHeight = 1080;
 
     rl::Window window { screenWidth, screenHeight, "VR Environment" };
 
@@ -58,8 +58,6 @@ int main()
     camera.fovy = 60.0f;
     camera.projection = CAMERA_PERSPECTIVE;
 
-    DisableCursor();
-
     window.SetTargetFPS(90);
 
     constexpr int max_columns = 20;
@@ -80,8 +78,6 @@ int main()
     }
 
     while (!window.ShouldClose()) {
-        camera.Update(CAMERA_FIRST_PERSON);
-
         BeginTextureMode(vr_render_tex);
         window.ClearBackground(rl::Color::RayWhite());
         BeginVrStereoMode(vr_config);

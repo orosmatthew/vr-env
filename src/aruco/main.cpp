@@ -1,6 +1,7 @@
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <sstream>
 
 #include <eigen3/Eigen/Geometry>
 #include <nlohmann/json.hpp>
@@ -11,6 +12,8 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/videoio.hpp>
 #include <raylib-cpp.hpp>
+
+#include "network.hpp"
 
 using json = nlohmann::json;
 namespace rl = raylib;
@@ -77,13 +80,6 @@ int main()
     cv::aruco::Dictionary aruco_dict = getPredefinedDictionary(cv::aruco::DICT_4X4_50);
     cv::aruco::ArucoDetector aruco_detector { aruco_dict, aruco_parameters };
 
-    // cv::Mat frame_undistorted;
-    // ReSharper disable once CppTooWideScope
-    cv::Mat camera_matrix_undistorted;
-    cv::Mat frame;
-    // cv::Mat frame_gray;
-    cv::Mat screen;
-
     const std::vector<cv::Point3f> tracker_points {
         cv::Vec3f(-0.06435f, 0.02f, -0.0226f),  cv::Vec3f(-0.02971f, 0.02f, -0.0026f),
         cv::Vec3f(-0.02971f, -0.02f, -0.0026f), cv::Vec3f(-0.06435f, -0.02f, -0.0226f),
@@ -95,26 +91,16 @@ int main()
         cv::Vec3f(0.06435f, -0.02f, -0.0226f),  cv::Vec3f(0.02971f, -0.02f, -0.0026f)
     };
 
-    // std::vector<cv::Vec3d> marker_rvecs;
-    // std::vector<cv::Vec3d> marker_tvecs;
-
-    // std::optional<Eigen::Quaternionf> marker_quat;
     std::optional<Eigen::Vector3f> marker_trans;
     std::optional<Eigen::Matrix3f> marker_rot;
-    rl::Camera camera;
-    camera.position = { 5.0f, 2.0f, 5.0f };
-    camera.target = { 0.0f, 2.0f, 0.0f };
-    camera.up = { 0.0f, 1.0f, 0.0f };
-    camera.fovy = 60.0f;
-    camera.projection = CAMERA_PERSPECTIVE;
-
-    // rl::Mesh cube_mesh = GenMeshCone(1.0f, 1.0f, 10);
-    // rl::Model cube_model = LoadModelFromMesh(cube_mesh);
 
     std::optional<cv::Vec3d> rvec;
     std::optional<cv::Vec3d> tvec;
 
-    SetTargetFPS(60);
+    // ReSharper disable once CppTooWideScope
+    LocalUdp udp;
+    cv::Mat frame;
+    cv::Mat screen;
 
     while (!window.ShouldClose()) {
         video_capture >> frame;
@@ -124,19 +110,12 @@ int main()
             window.SetSize(frame_size->width, frame_size->height);
         }
 
-        // cvtColor(frame, frame_gray, cv::COLOR_BGR2GRAY);
-
         marker_ids.clear();
         marker_corners.clear();
         aruco_detector.detectMarkers(frame, marker_corners, marker_ids);
         cv::aruco::drawDetectedMarkers(frame, marker_corners);
 
-        // bool use_prev = true;
-        // if (marker_rvecs.size() < marker_corners.size()) {
-        //     use_prev = false;
-        //     marker_rvecs.resize(marker_corners.size());
-        //     marker_tvecs.resize(marker_corners.size());
-        // }
+        std::optional<Eigen::Vector3f> tracker_pos;
 
         std::vector<cv::Point3f> tracker_subset;
         std::vector<cv::Point2f> corners_subset;
@@ -178,8 +157,25 @@ int main()
                 *tvec,
                 rvec.has_value() && tvec.has_value(),
                 cv::SOLVEPNP_ITERATIVE);
-
+            tracker_pos = Eigen::Vector3f(
+                static_cast<float>((*tvec)[0]), static_cast<float>((*tvec)[1]), static_cast<float>((*tvec)[2]));
             drawFrameAxes(frame, camera_matrix, distortion_coefficients, *rvec, *tvec, 0.05);
+        }
+        else {
+            tracker_pos.reset();
+        }
+
+        if (tracker_pos.has_value()) {
+            cv::Mat rot_mat;
+            Rodrigues(*rvec, rot_mat);
+            Eigen::Matrix3d eigen_rot_mat;
+            cv2eigen(rot_mat, eigen_rot_mat);
+            Eigen::Quaterniond quat(eigen_rot_mat);
+            std::stringstream ss;
+            ss << tracker_pos->x() << " " << tracker_pos->y() << " " << tracker_pos->z() << " "
+               << static_cast<float>(quat.x()) << " " << static_cast<float>(quat.y()) << " "
+               << static_cast<float>(quat.z()) << " " << static_cast<float>(quat.w());
+            udp.send_data(ss.str());
         }
 
         cvtColor(frame, screen, cv::COLOR_BGR2RGB);
