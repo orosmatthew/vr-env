@@ -91,9 +91,6 @@ int main()
         cv::Vec3f(0.06435f, -0.02f, -0.0226f),  cv::Vec3f(0.02971f, -0.02f, -0.0026f)
     };
 
-    std::optional<Eigen::Vector3f> marker_trans;
-    std::optional<Eigen::Matrix3f> marker_rot;
-
     std::optional<cv::Vec3d> rvec;
     std::optional<cv::Vec3d> tvec;
 

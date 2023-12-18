@@ -3,7 +3,7 @@
 #include <optional>
 #include <vector>
 
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 #include <opencv2/opencv.hpp>
 #include <raylib-cpp.hpp>
 
