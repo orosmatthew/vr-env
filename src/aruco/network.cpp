@@ -17,6 +17,7 @@ struct LocalUdp::Impl {
         , asio_socket(asio_context)
     {
         asio_socket.open(asio::ip::udp::v4());
+        asio_socket.non_blocking(true);
     }
 };
 

@@ -99,6 +99,7 @@ int main()
     cv::Mat frame;
     cv::Mat screen;
 
+    SetTargetFPS(60);
     while (!window.ShouldClose()) {
         video_capture >> frame;
 
@@ -167,11 +168,10 @@ int main()
             Rodrigues(*rvec, rot_mat);
             Eigen::Matrix3d eigen_rot_mat;
             cv2eigen(rot_mat, eigen_rot_mat);
-            Eigen::Quaterniond quat(eigen_rot_mat);
+            Eigen::Quaternionf quat(eigen_rot_mat.cast<float>());
             std::stringstream ss;
-            ss << tracker_pos->x() << " " << tracker_pos->y() << " " << tracker_pos->z() << " "
-               << static_cast<float>(quat.x()) << " " << static_cast<float>(quat.y()) << " "
-               << static_cast<float>(quat.z()) << " " << static_cast<float>(quat.w());
+            ss << tracker_pos->x() << " " << tracker_pos->y() << " " << tracker_pos->z() << " " << quat.x() << " "
+               << quat.y() << " " << quat.z() << " " << quat.w() << " ";
             udp.send_data(ss.str());
         }
 

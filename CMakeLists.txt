@@ -22,7 +22,9 @@ find_package(asio CONFIG REQUIRED)
 add_subdirectory(external/raylib-5.0)
 add_subdirectory(external/raylib-cpp-5.0.0)
 
-add_executable(vr_env src/env/main.cpp)
+add_executable(vr_env
+        src/env/main.cpp
+        src/env/networking.cpp)
 target_link_libraries(vr_env PRIVATE
         asio::asio
         Eigen3::Eigen
